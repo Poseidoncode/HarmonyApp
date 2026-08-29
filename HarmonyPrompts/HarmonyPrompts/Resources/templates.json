@@ -1,0 +1,58 @@
+[
+  {
+    "id": "explain-code",
+    "name": "Explain Code",
+    "description": "Detailed explanation of the selected code block.",
+    "template": "Please explain the following {{language}} code in detail. Focus on {{focus}}.\n\n```{{language}}\n{{code}}\n```",
+    "fields": [
+      { "name": "language", "label": "Language", "type": "text", "defaultValue": "javascript" },
+      { "name": "code", "label": "Code Snippet", "type": "textarea", "placeholder": "Paste code here..." },
+      { "name": "focus", "label": "Focus Area", "type": "select", "options": ["Logic Flow", "Syntax", "Performance", "Security", "Best Practices"], "defaultValue": "Logic Flow" }
+    ]
+  },
+  {
+    "id": "find-bugs",
+    "name": "Find & Fix Bugs",
+    "description": "Analyze code for potential bugs and suggest fixes.",
+    "template": "Analyze the following {{language}} code for bugs related to {{bugType}}.\n\n```{{language}}\n{{code}}\n```\n\nProvide the fixed code and explain the changes.",
+    "fields": [
+      { "name": "language", "label": "Language", "type": "text", "defaultValue": "python" },
+      { "name": "code", "label": "Code Snippet", "type": "textarea" },
+      { "name": "bugType", "label": "Bug Type", "type": "radio", "options": ["Logic Error", "Runtime Error", "Security Vulnerability", "Performance Bottleneck"], "defaultValue": "Logic Error" }
+    ]
+  },
+  {
+    "id": "generate-tests",
+    "name": "Generate Unit Tests",
+    "description": "Create unit tests for the provided function or class.",
+    "template": "Write {{framework}} unit tests for the following {{language}} code. {{edgeCases}}\n\n```{{language}}\n{{code}}\n```",
+    "fields": [
+      { "name": "language", "label": "Language", "type": "text", "defaultValue": "typescript" },
+      { "name": "framework", "label": "Testing Framework", "type": "text", "defaultValue": "jest" },
+      { "name": "code", "label": "Code Snippet", "type": "textarea" },
+      { "name": "edgeCases", "label": "Include Edge Cases?", "type": "checkbox", "checkedValue": "Please include tests for edge cases and invalid inputs.", "uncheckedValue": "", "defaultValue": "true" }
+    ]
+  },
+  {
+    "id": "refactor-code",
+    "name": "Refactor Code",
+    "description": "Improve code quality, readability, or performance.",
+    "template": "Refactor the following {{language}} code to improve {{goal}}.\n\n```{{language}}\n{{code}}\n```\n\nExplain the refactoring steps.",
+    "fields": [
+      { "name": "language", "label": "Language", "type": "text" },
+      { "name": "code", "label": "Code Snippet", "type": "textarea" },
+      { "name": "goal", "label": "Refactoring Goal", "type": "select", "options": ["Readability", "Performance", "modularity", "Modern Syntax"], "defaultValue": "Readability" }
+    ]
+  },
+  {
+    "id": "add-docs",
+    "name": "Generate Documentation",
+    "description": "Add comments or documentation to the code.",
+    "template": "Add {{style}} documentation to the following {{language}} code.\n\n```{{language}}\n{{code}}\n```",
+    "fields": [
+      { "name": "language", "label": "Language", "type": "text" },
+      { "name": "code", "label": "Code Snippet", "type": "textarea" },
+      { "name": "style", "label": "Doc Style", "type": "select", "options": ["JSDoc", "DocString", "Inline Comments", "Markdown"], "defaultValue": "JSDoc" }
+    ]
+  }
+]
