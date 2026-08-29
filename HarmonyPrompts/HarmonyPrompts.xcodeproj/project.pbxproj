@@ -18,6 +18,8 @@
 		B1000008 /* FieldEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000008 /* FieldEditorView.swift */; };
 		B1000009 /* TemplateFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000009 /* TemplateFormView.swift */; };
 		B1000010 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000010 /* ContentView.swift */; };
+		B1000015 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000015 /* Theme.swift */; };
+		B1000016 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000016 /* FlowLayout.swift */; };
 		B1000011 /* templates.json in Resources */ = {isa = PBXBuildFile; fileRef = F1000011 /* templates.json */; };
 		B1000012 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F1000012 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
@@ -34,6 +36,8 @@
 		F1000008 /* FieldEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldEditorView.swift; sourceTree = "<group>"; };
 		F1000009 /* TemplateFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateFormView.swift; sourceTree = "<group>"; };
 		F1000010 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		F1000015 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		F1000016 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		F1000011 /* templates.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = templates.json; sourceTree = "<group>"; };
 		F1000012 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F1000013 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -104,6 +108,8 @@
 		G1000006 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				F1000015 /* Theme.swift */,
+				F1000016 /* FlowLayout.swift */,
 				F1000010 /* ContentView.swift */,
 				F1000007 /* TemplateListView.swift */,
 				F1000008 /* FieldEditorView.swift */,
@@ -202,6 +208,8 @@
 				B1000008 /* FieldEditorView.swift in Sources */,
 				B1000009 /* TemplateFormView.swift in Sources */,
 				B1000010 /* ContentView.swift in Sources */,
+				B1000015 /* Theme.swift in Sources */,
+				B1000016 /* FlowLayout.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

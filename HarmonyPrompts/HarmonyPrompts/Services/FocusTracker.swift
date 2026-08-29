@@ -5,7 +5,8 @@ final class FocusTracker {
     static let shared = FocusTracker()
 
     private(set) var lastNonSelfApp: NSRunningApplication?
-    private var observer: NSObjectProtocol?
+    private var workspaceObserver: NSObjectProtocol?
+    private var globalEventMonitor: Any?
 
     private var ourBundleID: String? {
         Bundle.main.bundleIdentifier
@@ -14,9 +15,10 @@ final class FocusTracker {
     private init() {}
 
     func start() {
+        stop()
         refreshFromFrontmost()
 
-        observer = NSWorkspace.shared.notificationCenter.addObserver(
+        workspaceObserver = NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didActivateApplicationNotification,
             object: nil,
             queue: .main
@@ -28,9 +30,24 @@ final class FocusTracker {
         }
 
         // Capture target app on any click (before menu bar extra steals focus).
-        NSEvent.addGlobalMonitorForEvents(matching: .leftMouseDown) { [weak self] _ in
+        globalEventMonitor = NSEvent.addGlobalMonitorForEvents(matching: .leftMouseDown) { [weak self] _ in
             self?.refreshFromFrontmost()
         }
+    }
+
+    func stop() {
+        if let observer = workspaceObserver {
+            NSWorkspace.shared.notificationCenter.removeObserver(observer)
+            workspaceObserver = nil
+        }
+        if let monitor = globalEventMonitor {
+            NSEvent.removeMonitor(monitor)
+            globalEventMonitor = nil
+        }
+    }
+
+    deinit {
+        stop()
     }
 
     /// Snapshot the current frontmost app (call before Harmony takes focus).

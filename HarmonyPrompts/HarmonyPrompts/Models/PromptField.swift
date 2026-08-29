@@ -22,10 +22,10 @@ struct PromptField: Identifiable, Codable, Hashable {
     func initialValue() -> String {
         switch type {
         case .checkbox:
-            if defaultValue?.lowercased() == "true" {
-                return checkedValue ?? ""
-            }
-            return uncheckedValue ?? ""
+            let isDefaultChecked = defaultValue?.lowercased() == "true"
+            let activeValue = checkedValue ?? "true"
+            let inactiveValue = uncheckedValue ?? ""
+            return isDefaultChecked ? activeValue : inactiveValue
         case .select, .radio:
             if let defaultValue, !defaultValue.isEmpty {
                 return defaultValue
