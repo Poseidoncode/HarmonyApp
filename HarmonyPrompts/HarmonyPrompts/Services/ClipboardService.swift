@@ -92,9 +92,11 @@ enum ClipboardService {
     private static func postPasteViaAppleScript(target: NSRunningApplication) -> Bool {
         let activateLine: String
         if let bundleID = target.bundleIdentifier {
-            activateLine = "tell application id \"\(bundleID)\" to activate"
+            let sanitizedBundleID = bundleID.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
+            activateLine = "tell application id \"\(sanitizedBundleID)\" to activate"
         } else if let name = target.localizedName {
-            activateLine = "tell application \"\(name)\" to activate"
+            let sanitizedName = name.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
+            activateLine = "tell application \"\(sanitizedName)\" to activate"
         } else {
             return false
         }

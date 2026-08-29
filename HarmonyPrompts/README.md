@@ -2,20 +2,30 @@
 
 SwiftUI desktop app for quick AI prompt templates. Works in Cursor, browser, Terminal, anywhere.
 
-## Screenshots / 介面預覽
+## Screenshots
 
-| 模板選擇與參數配置 (Template & Parameters) | 即時渲染預覽與一鍵注入 (Render & Copy/Paste) |
+| Template Selection & Configuration | Real-Time Preview & Quick Paste |
 | :---: | :---: |
 | <img src="../Assets/Picture1.png" alt="Template Selection & Parameters" width="400" /> | <img src="../Assets/Picture2.png" alt="Rendered Output & Copy Actions" width="400" /> |
-| **Prompt 庫與動態變數配置**<br>瀏覽/搜尋 Prompt 範本，即時填寫動態參數欄位 | **即時輸出與快捷操作**<br>即時預覽 Rendered Prompt，支援一鍵複製（`⌘C`）或自動貼上（`⌘⌥V`） |
+| Browse and search prompt templates, then configure dynamic parameter fields. | Live preview of rendered prompt with one-click copy (`⌘C`) and auto-paste (`⌘⌥V`). |
 
-## Build & run
+## Installation & Build
+
+### One-line Install (Recommended)
 
 ```bash
-just install
+curl -fsSL https://raw.githubusercontent.com/Poseidoncode/HarmonyApp/main/install.sh | bash
 ```
 
-Or in Xcode: open `HarmonyPrompts.xcodeproj` → Run (⌘R).
+### Build from Source
+
+```bash
+git clone https://github.com/Poseidoncode/HarmonyApp.git
+cd HarmonyApp
+./install.sh
+```
+
+Or in Xcode: open `HarmonyPrompts.xcodeproj` -> Run (⌘R).
 
 ## Usage
 
@@ -24,7 +34,7 @@ Or in Xcode: open `HarmonyPrompts.xcodeproj` → Run (⌘R).
 3. **Copy** — paste manually with ⌘V anywhere
 4. **Copy & Paste** — auto-pastes into the frontmost app (needs Accessibility permission)
 
-Settings (Harmony Prompts → Settings…): templates folder, Accessibility help.
+Settings (Harmony Prompts -> Settings…): templates folder, Accessibility help.
 
 ## Templates
 
@@ -40,3 +50,8 @@ Use **Import JSON…** in the app with `../Harmony/resources/templates.json`, or
 ```
 ~/Library/Application Support/HarmonyPrompts/templates.json
 ```
+
+## Security & Privacy
+
+Harmony Prompts operates 100% offline and locally. See [SECURITY.md](../SECURITY.md) for vulnerability reporting and architecture details.
+

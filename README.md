@@ -4,40 +4,58 @@ Quick-insert AI prompt templates via a menu bar app. Works in Cursor, browser, T
 
 See [`HarmonyPrompts/README.md`](HarmonyPrompts/README.md) for details.
 
-## Screenshots / 介面預覽
+## Screenshots
 
-| 模板選擇與參數配置 (Template & Parameters) | 即時渲染預覽與一鍵注入 (Render & Copy/Paste) |
+| Template Selection & Configuration | Real-Time Preview & Quick Paste |
 | :---: | :---: |
 | <img src="Assets/Picture1.png" alt="Template Selection & Parameters" width="400" /> | <img src="Assets/Picture2.png" alt="Rendered Output & Copy Actions" width="400" /> |
-| **Prompt 庫與動態變數配置**<br>瀏覽/搜尋 Prompt 範本，即時填寫動態參數欄位（如語言、程式碼片段、焦點等） | **即時輸出與快捷操作**<br>即時預覽 Rendered Prompt，支援一鍵複製（`⌘C`）或直接自動貼入目前使用中的應用程式（`⌘⌥V`） |
+| Browse and search prompt templates, then configure dynamic parameter fields (language, code snippet, focus area, etc.). | Live preview of rendered prompt with character/word count, supporting one-click copy (`⌘C`) and auto-paste (`⌘⌥V`). |
 
-## Features / 功能特色
+## Features
 
-- ⚡️ **Menu Bar 快捷存取**：常駐 macOS 選單列，隨點隨用，適用於 Cursor、VS Code、瀏覽器、Terminal 等任何應用程式。
-- 📝 **動態 Prompt 模板**：支援多變數（Variable）與自訂表單控件（文字輸入、多行文本、下拉選單等）。
-- 👁️ **即時渲染預覽 (Live Preview)**：輸入參數時即時產生 Prompt，並即時統計字數與字元數。
-- 🚀 **一鍵注入 (Copy & Paste)**：支援快速複製（`⌘C`）與自動前台應用貼上（`⌘⌥V`）。
-- 📂 **靈活的 JSON 範本管理**：支援從 Harmony 匯入範本或直接編輯本機 `templates.json`。
+- **Menu Bar Quick Access**: Resides in the macOS menu bar for fast access across Cursor, VS Code, browsers, Terminal, or any other application.
+- **Dynamic Prompt Templates**: Supports multi-variable parameter configurations and custom form controls (text input, multiline text, dropdown selection).
+- **Live Preview & Statistics**: Real-time prompt output rendering with live character and word count tracking.
+- **Instant Injection (Copy & Paste)**: One-click clipboard copy (`⌘C`) or direct auto-paste into active frontmost application (`⌘⌥V`).
+- **Flexible Template Management**: Support importing templates via JSON or directly editing the local `templates.json` configuration.
 
-## Quick start
+## Installation
+
+### One-line Install (Recommended)
+
+Install and build Harmony Prompts directly to `/Applications` via curl:
 
 ```bash
-just install
+curl -fsSL https://raw.githubusercontent.com/Poseidoncode/HarmonyApp/main/install.sh | bash
 ```
 
-Click the menu bar bubble → pick template → **Copy** or **Copy & Paste**.
+### Build from Source
+
+```bash
+git clone https://github.com/Poseidoncode/HarmonyApp.git
+cd HarmonyApp
+./install.sh
+```
+
+Or open `HarmonyPrompts/HarmonyPrompts.xcodeproj` in Xcode and press Run (`⌘R`).
+
+## Quick Start
+
+1. Launch **Harmony Prompts** from `/Applications` or Spotlight.
+2. Click the menu bar bubble icon.
+3. Pick a template, fill in parameters, and click **Copy** (`⌘C`) or **Copy & Paste** (`⌘⌥V`).
 
 Run from **`/Applications/Harmony Prompts.app`** (not the `build/` folder) so Accessibility permission stays valid.
 
 ## Accessibility (Copy & Paste)
 
-**Copy & Paste** needs **System Settings → Privacy & Security → Accessibility**.
+**Copy & Paste** requires **System Settings -> Privacy & Security -> Accessibility**.
 
 Enable **Harmony Prompts** once. If you see duplicate entries, remove old ones pointing at `build/` paths.
 
 Until permission is granted, use **Copy** + manual **⌘V**.
 
-## Project layout
+## Project Layout
 
 ```
 HarmonyPrompts/
@@ -45,3 +63,9 @@ HarmonyPrompts/
 ├── HarmonyPrompts.xcodeproj
 └── scripts/                 # Icon build scripts
 ```
+
+## Security & Privacy
+
+Harmony Prompts operates 100% locally with zero data collection, no telemetry, and no outbound network calls. All templates and prompt evaluations remain strictly on your local machine.
+
+For security policies, vulnerability reporting, and threat model details, see [SECURITY.md](SECURITY.md).
