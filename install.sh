@@ -3,9 +3,20 @@ set -e
 
 echo "=== Installing Harmony Prompts ==="
 
-# Check for Xcode / xcodebuild
-if ! command -v xcodebuild >/dev/null 2>&1; then
-    echo "Error: xcodebuild is required to build Harmony Prompts. Please install Xcode and Command Line Tools."
+# Check for Xcode / xcodebuild and auto-detect DEVELOPER_DIR if needed
+if ! xcodebuild -version >/dev/null 2>&1; then
+    for xcode_path in "/Applications/Xcode.app" "/Applications/Xcode-beta.app"; do
+        if [ -d "$xcode_path/Contents/Developer" ]; then
+            export DEVELOPER_DIR="$xcode_path/Contents/Developer"
+            break
+        fi
+    done
+fi
+
+if ! xcodebuild -version >/dev/null 2>&1; then
+    echo "Error: xcodebuild is required to build Harmony Prompts."
+    echo "If Xcode is installed, run:"
+    echo "  sudo xcode-select -s /Applications/Xcode.app/Contents/Developer"
     exit 1
 fi
 
