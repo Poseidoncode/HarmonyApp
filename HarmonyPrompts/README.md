@@ -11,21 +11,13 @@ SwiftUI desktop app for quick AI prompt templates. Works in Cursor, browser, Ter
 
 ## Installation & Build
 
-### Prerequisites
-
-- macOS 14.0+
-- **Xcode** (Full application). Ensure Xcode path, license, and components are configured:
-  ```bash
-  sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
-  sudo xcodebuild -license accept
-  xcodebuild -runFirstLaunch
-  ```
-
 ### One-line Install (Recommended)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Poseidoncode/HarmonyApp/main/install.sh | bash
 ```
+
+> **Requirement**: macOS 14.0+ with Xcode installed.
 
 ### Build from Source
 
@@ -36,6 +28,19 @@ cd HarmonyApp
 ```
 
 Or in Xcode: open `HarmonyPrompts.xcodeproj` -> Run (⌘R).
+
+<details>
+<summary>Troubleshooting Xcode setup</summary>
+
+If you encounter `xcodebuild` path or license errors, run:
+
+```bash
+sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+sudo xcodebuild -license accept
+xcodebuild -runFirstLaunch
+```
+
+</details>
 
 ## Usage
 

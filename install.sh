@@ -13,10 +13,14 @@ if ! xcodebuild -version >/dev/null 2>&1; then
     done
 fi
 
+# Auto-initialize Xcode components if needed
+xcodebuild -runFirstLaunch >/dev/null 2>&1 || true
+
 if ! xcodebuild -version >/dev/null 2>&1; then
-    echo "Error: xcodebuild is required to build Harmony Prompts."
-    echo "If Xcode is installed, run:"
+    echo "Error: Xcode is required to build Harmony Prompts."
+    echo "Please install Xcode from the App Store, then run:"
     echo "  sudo xcode-select -s /Applications/Xcode.app/Contents/Developer"
+    echo "  sudo xcodebuild -license accept"
     exit 1
 fi
 
@@ -53,6 +57,7 @@ xcodebuild -project "$PROJECT_DIR/HarmonyPrompts.xcodeproj" \
 echo "Installing to /Applications/Harmony Prompts.app..."
 rm -rf "/Applications/Harmony Prompts.app"
 cp -R "$BUILD_DIR/Release/Harmony Prompts.app" "/Applications/"
+/System/Library/Frameworks/CoreServices.framework/Versions/Current/Frameworks/LaunchServices.framework/Versions/Current/Support/lsregister -f -R -trusted "/Applications/Harmony Prompts.app" 2>/dev/null || true
 
 echo "=== Installation complete ==="
 echo "Harmony Prompts has been installed to /Applications/Harmony Prompts.app"

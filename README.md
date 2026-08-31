@@ -21,16 +21,6 @@ See [`HarmonyPrompts/README.md`](HarmonyPrompts/README.md) for details.
 
 ## Installation
 
-### Prerequisites
-
-- macOS 14.0+
-- **Xcode** (Full application from App Store or Apple Developer). If you encounter `xcodebuild`, plugin, or license issues, run:
-  ```bash
-  sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
-  sudo xcodebuild -license accept
-  xcodebuild -runFirstLaunch
-  ```
-
 ### One-line Install (Recommended)
 
 Install and build Harmony Prompts directly to `/Applications` via curl:
@@ -38,6 +28,8 @@ Install and build Harmony Prompts directly to `/Applications` via curl:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Poseidoncode/HarmonyApp/main/install.sh | bash
 ```
+
+> **Requirement**: macOS 14.0+ with Xcode installed.
 
 ### Build from Source
 
@@ -48,6 +40,19 @@ cd HarmonyApp
 ```
 
 Or open `HarmonyPrompts/HarmonyPrompts.xcodeproj` in Xcode and press Run (`⌘R`).
+
+<details>
+<summary>Troubleshooting Xcode setup</summary>
+
+If you encounter `xcodebuild` path or license errors, run:
+
+```bash
+sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+sudo xcodebuild -license accept
+xcodebuild -runFirstLaunch
+```
+
+</details>
 
 ## Quick Start
 
