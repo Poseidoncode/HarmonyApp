@@ -24,10 +24,11 @@ See [`HarmonyPrompts/README.md`](HarmonyPrompts/README.md) for details.
 ### Prerequisites
 
 - macOS 14.0+
-- **Xcode** (Full application from App Store or Apple Developer). If you encounter `xcodebuild` or license issues, run:
+- **Xcode** (Full application from App Store or Apple Developer). If you encounter `xcodebuild`, plugin, or license issues, run:
   ```bash
   sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
   sudo xcodebuild -license accept
+  xcodebuild -runFirstLaunch
   ```
 
 ### One-line Install (Recommended)
