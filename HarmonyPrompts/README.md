@@ -11,6 +11,15 @@ SwiftUI desktop app for quick AI prompt templates. Works in Cursor, browser, Ter
 
 ## Installation & Build
 
+### Prerequisites
+
+- macOS 14.0+
+- **Xcode** (Full application). Ensure Xcode path and license are configured:
+  ```bash
+  sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+  sudo xcodebuild -license accept
+  ```
+
 ### One-line Install (Recommended)
 
 ```bash

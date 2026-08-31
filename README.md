@@ -21,6 +21,15 @@ See [`HarmonyPrompts/README.md`](HarmonyPrompts/README.md) for details.
 
 ## Installation
 
+### Prerequisites
+
+- macOS 14.0+
+- **Xcode** (Full application from App Store or Apple Developer). If you encounter `xcodebuild` or license issues, run:
+  ```bash
+  sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+  sudo xcodebuild -license accept
+  ```
+
 ### One-line Install (Recommended)
 
 Install and build Harmony Prompts directly to `/Applications` via curl:
