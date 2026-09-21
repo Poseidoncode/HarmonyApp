@@ -74,11 +74,17 @@ struct ContentView: View {
         }
         .onChange(of: store.templates) { _, templates in
             // TemplateStore loads asynchronously: adopt the first template once
-            // data arrives, or after an import replaces the list.
-            if selectedID == nil || !templates.contains(where: { $0.id == selectedID }) {
+            // data arrives, or after an import replaces the list. Field values
+            // reset only when the selection or the selected template itself
+            // changed, so a reload never wipes typed input.
+            let previousID = selectedID
+            let previousTemplate = selectedTemplate
+            if previousID == nil || !templates.contains(where: { $0.id == previousID }) {
                 selectedID = templates.first?.id
+                // selectedID's own onChange handler re-syncs field values.
+            } else if selectedTemplate != previousTemplate {
+                syncFieldValues()
             }
-            syncFieldValues()
         }
         .onChange(of: store.lastActionMessage) { _, message in
             if let message {
@@ -95,13 +101,17 @@ struct ContentView: View {
                 guard let url = urls.first else { return }
                 if url.startAccessingSecurityScopedResource() {
                     defer { url.stopAccessingSecurityScopedResource() }
-                    // Import decodes off the main thread; selection and the
-                    // confirmation toast follow via store.templates /
-                    // store.lastActionMessage observers. Failures surface via lastError.
-                    store.importFromURL(url)
+                    // Read inside the scope; only the decode runs in the
+                    // background. Selection and the confirmation toast follow
+                    // via store.templates / store.lastActionMessage observers.
+                    do {
+                        store.importFromData(try Data(contentsOf: url))
+                    } catch {
+                        store.reportError("Import failed: \(error.localizedDescription)")
+                    }
                 }
             case .failure(let error):
-                store.lastError = error.localizedDescription
+                store.reportError(error.localizedDescription)
             }
         }
         .overlay(alignment: .bottom) {
@@ -133,9 +143,9 @@ struct ContentView: View {
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: toastMessage)
         .alert("Error", isPresented: Binding(
             get: { store.lastError != nil },
-            set: { if !$0 { store.lastError = nil } }
+            set: { if !$0 { store.clearError() } }
         )) {
-            Button("OK") { store.lastError = nil }
+            Button("OK") { store.clearError() }
         } message: {
             Text(store.lastError ?? "")
         }

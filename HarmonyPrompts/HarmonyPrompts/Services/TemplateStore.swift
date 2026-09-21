@@ -5,11 +5,22 @@ import Foundation
 @MainActor
 final class TemplateStore: ObservableObject {
     @Published private(set) var templates: [PromptTemplate] = []
-    @Published var lastError: String?
+    @Published private(set) var lastError: String?
     @Published var lastActionMessage: String?
 
     private let fileManager = FileManager.default
     private var isLoading = false
+
+    /// Bumped on every `templates` assignment; lets stale async completions yield.
+    private var templatesTicket = 0
+    /// Bumped on every `importFromData` call; only the latest import applies.
+    private var importTicket = 0
+    /// Bumped on every `lastError` assignment; a success clears only when no
+    /// newer error was posted while it was in flight.
+    private var errorTicket = 0
+    /// Tail of the save chain; saves run strictly FIFO so a stale snapshot can
+    /// never land on disk after a newer one.
+    private var pendingSave: Task<Void, Never>?
 
     var templatesURL: URL {
         cachedAppSupportDirectory.appendingPathComponent("templates.json")
@@ -28,7 +39,8 @@ final class TemplateStore: ObservableObject {
 
     /// Loads templates without blocking the main thread. Both the window and the
     /// menu bar scenes call this on appear; the second call is a no-op while the
-    /// first read is in flight.
+    /// first read is in flight. A completion that lost a race (e.g. an import
+    /// landed meanwhile) is discarded instead of clobbering newer state.
     func load() {
         guard !isLoading else { return }
         if !fileManager.fileExists(atPath: templatesURL.path) {
@@ -36,8 +48,13 @@ final class TemplateStore: ObservableObject {
         }
 
         isLoading = true
+        let ticket = templatesTicket
         let url = templatesURL
+        let priorSave = pendingSave
         Task.detached(priority: .userInitiated) {
+            // Read-after-write: wait for an in-flight save so we never load a
+            // pre-import file over an already-imported list.
+            await priorSave?.value
             let decoded: [PromptTemplate]
             do {
                 let data = try Data(contentsOf: url)
@@ -46,15 +63,17 @@ final class TemplateStore: ObservableObject {
                 let message = "Failed to load templates: \(error.localizedDescription)"
                 await MainActor.run {
                     self.isLoading = false
-                    self.lastError = message
-                    self.templates = []
+                    guard ticket == self.templatesTicket else { return }
+                    self.assignTemplates([])
+                    self.postError(message)
                 }
                 return
             }
             await MainActor.run {
                 self.isLoading = false
-                self.templates = decoded
-                self.lastError = nil
+                guard ticket == self.templatesTicket else { return }
+                self.assignTemplates(decoded)
+                self.postError(nil)
             }
         }
     }
@@ -62,7 +81,10 @@ final class TemplateStore: ObservableObject {
     func save() {
         let snapshot = templates
         let url = templatesURL
-        Task.detached(priority: .utility) {
+        let errorTicketAtStart = errorTicket
+        let previous = pendingSave
+        pendingSave = Task.detached(priority: .utility) {
+            await previous?.value
             do {
                 let encoder = JSONEncoder()
                 encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
@@ -71,44 +93,76 @@ final class TemplateStore: ObservableObject {
             } catch {
                 let message = "Failed to save templates: \(error.localizedDescription)"
                 await MainActor.run {
-                    self.lastError = message
+                    self.postError(message)
                 }
                 return
             }
             await MainActor.run {
-                self.lastError = nil
+                if errorTicketAtStart == self.errorTicket {
+                    self.postError(nil)
+                }
             }
         }
     }
 
-    func importFromURL(_ url: URL) {
+    /// Decodes `data` off the main thread and adopts it. Takes bytes rather than
+    /// a URL so the caller can read inside its security-scoped access: the
+    /// background decode must never touch a revoked scope.
+    func importFromData(_ data: Data) {
+        importTicket += 1
+        let ticket = importTicket
+        let errorTicketAtStart = errorTicket
         Task.detached(priority: .userInitiated) {
             let imported: [PromptTemplate]
             do {
-                let data = try Data(contentsOf: url)
                 imported = try JSONDecoder().decode([PromptTemplate].self, from: data)
             } catch {
                 let message = "Import failed: \(error.localizedDescription)"
                 await MainActor.run {
-                    self.lastError = message
+                    guard ticket == self.importTicket else { return }
+                    self.postError(message)
                 }
                 return
             }
             await MainActor.run {
+                // A newer import supersedes this one; its outcome reports instead.
+                guard ticket == self.importTicket else { return }
                 guard !imported.isEmpty else {
-                    self.lastError = "Imported file contains no templates."
+                    self.postError("Imported file contains no templates.")
                     return
                 }
-                self.templates = imported
-                self.lastError = nil
+                self.assignTemplates(imported)
+                if errorTicketAtStart == self.errorTicket {
+                    self.postError(nil)
+                }
                 self.lastActionMessage = "Imported \(imported.count) template(s)."
                 self.save()
             }
         }
     }
 
+    /// Reports a caller-side failure (e.g. reading the picked file).
+    func reportError(_ message: String) {
+        postError(message)
+    }
+
+    /// Dismisses the current error alert.
+    func clearError() {
+        postError(nil)
+    }
+
     func revealTemplatesInFinder() {
         NSWorkspace.shared.activateFileViewerSelecting([templatesURL])
+    }
+
+    private func assignTemplates(_ value: [PromptTemplate]) {
+        templatesTicket += 1
+        templates = value
+    }
+
+    private func postError(_ message: String?) {
+        errorTicket += 1
+        lastError = message
     }
 
     private func seedDefaultsIfNeeded() {
