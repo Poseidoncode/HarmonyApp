@@ -8,15 +8,28 @@ public struct FlowLayout: Layout {
         self.spacing = spacing
     }
 
-    public func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+    /// Subview sizes measured once per layout invalidation, shared by
+    /// `sizeThatFits` and `placeSubviews` (each previously re-queried every subview).
+    public struct Cache {
+        var sizes: [CGSize] = []
+    }
+
+    public func makeCache(subviews: Subviews) -> Cache {
+        Cache()
+    }
+
+    public func updateCache(_ cache: inout Cache, subviews: Subviews) {
+        cache.sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+    }
+
+    public func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
         let width = proposal.replacingUnspecifiedDimensions().width
-        var height: CGFloat = 0
+        let sizes = cachedSizes(subviews: subviews, cache: cache)
         var currentX: CGFloat = 0
         var currentY: CGFloat = 0
         var lineHeight: CGFloat = 0
 
-        for view in subviews {
-            let size = view.sizeThatFits(.unspecified)
+        for size in sizes {
             if currentX + size.width > width, currentX > 0 {
                 currentX = 0
                 currentY += lineHeight + spacing
@@ -25,17 +38,17 @@ public struct FlowLayout: Layout {
             currentX += size.width + spacing
             lineHeight = max(lineHeight, size.height)
         }
-        height = currentY + lineHeight
-        return CGSize(width: width, height: height)
+        return CGSize(width: width, height: currentY + lineHeight)
     }
 
-    public func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+    public func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
+        let sizes = cachedSizes(subviews: subviews, cache: cache)
         var currentX = bounds.minX
         var currentY = bounds.minY
         var lineHeight: CGFloat = 0
 
-        for view in subviews {
-            let size = view.sizeThatFits(.unspecified)
+        for (index, view) in subviews.enumerated() {
+            let size = sizes[index]
             if currentX + size.width > bounds.maxX, currentX > bounds.minX {
                 currentX = bounds.minX
                 currentY += lineHeight + spacing
@@ -45,5 +58,11 @@ public struct FlowLayout: Layout {
             currentX += size.width + spacing
             lineHeight = max(lineHeight, size.height)
         }
+    }
+
+    private func cachedSizes(subviews: Subviews, cache: Cache) -> [CGSize] {
+        cache.sizes.count == subviews.count
+            ? cache.sizes
+            : subviews.map { $0.sizeThatFits(.unspecified) }
     }
 }

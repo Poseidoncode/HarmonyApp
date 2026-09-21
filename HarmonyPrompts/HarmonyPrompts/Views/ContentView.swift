@@ -4,7 +4,6 @@ import UniformTypeIdentifiers
 struct ContentView: View {
     @EnvironmentObject private var store: TemplateStore
 
-    @State private var searchText = ""
     @State private var selectedID: String?
     @State private var fieldValues: [String: String] = [:]
     @State private var showImportPanel = false
@@ -33,7 +32,6 @@ struct ContentView: View {
         HSplitView {
             TemplateListView(
                 templates: store.templates,
-                searchText: $searchText,
                 selectedID: $selectedID,
                 onImport: { showImportPanel = true },
                 onOpenFolder: { store.revealTemplatesInFinder() }
@@ -74,9 +72,17 @@ struct ContentView: View {
         .onChange(of: selectedID) { _, _ in
             syncFieldValues()
         }
+        .onChange(of: store.templates) { _, templates in
+            // TemplateStore loads asynchronously: adopt the first template once
+            // data arrives, or after an import replaces the list.
+            if selectedID == nil || !templates.contains(where: { $0.id == selectedID }) {
+                selectedID = templates.first?.id
+            }
+            syncFieldValues()
+        }
         .onChange(of: store.lastActionMessage) { _, message in
             if let message {
-                showToast(message, type: .info)
+                showToast(message, type: .success)
             }
         }
         .fileImporter(
@@ -89,10 +95,10 @@ struct ContentView: View {
                 guard let url = urls.first else { return }
                 if url.startAccessingSecurityScopedResource() {
                     defer { url.stopAccessingSecurityScopedResource() }
+                    // Import decodes off the main thread; selection and the
+                    // confirmation toast follow via store.templates /
+                    // store.lastActionMessage observers. Failures surface via lastError.
                     store.importFromURL(url)
-                    selectedID = store.templates.first?.id
-                    syncFieldValues()
-                    showToast("Templates successfully imported", type: .success)
                 }
             case .failure(let error):
                 store.lastError = error.localizedDescription

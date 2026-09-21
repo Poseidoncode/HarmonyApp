@@ -72,6 +72,7 @@ struct TemplateFormView: View {
 
                 // MARK: - 3D Agentic Live Prompt Preview Stage (Passionfroot Hero Dark Metaphor)
                 VStack(alignment: .leading, spacing: 0) {
+                    let stats = PromptStats.measure(generatedPrompt)
                     // Preview Header Bar
                     HStack {
                         HStack(spacing: 6) {
@@ -88,11 +89,11 @@ struct TemplateFormView: View {
                         Spacer()
 
                         HStack(spacing: 8) {
-                            Text("\(generatedPrompt.count) chars")
+                            Text("\(stats.chars) chars")
                                 .font(.system(size: 10, design: .monospaced))
                                 .foregroundStyle(HarmonyTheme.textInverseMuted)
 
-                            Text("\(generatedPrompt.split { $0.isWhitespace }.count) words")
+                            Text("\(stats.words) words")
                                 .font(.system(size: 10, design: .monospaced))
                                 .foregroundStyle(HarmonyTheme.textInverseMuted)
                         }

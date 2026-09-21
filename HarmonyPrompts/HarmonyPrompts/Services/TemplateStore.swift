@@ -9,12 +9,14 @@ final class TemplateStore: ObservableObject {
     @Published var lastActionMessage: String?
 
     private let fileManager = FileManager.default
+    private var isLoading = false
 
     var templatesURL: URL {
-        appSupportDirectory.appendingPathComponent("templates.json")
+        cachedAppSupportDirectory.appendingPathComponent("templates.json")
     }
 
-    private var appSupportDirectory: URL {
+    /// Resolved once: every access previously re-queried FileManager and hit the filesystem.
+    private lazy var cachedAppSupportDirectory: URL = {
         let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? fileManager.temporaryDirectory
         let dir = base.appendingPathComponent("HarmonyPrompts", isDirectory: true)
@@ -22,49 +24,86 @@ final class TemplateStore: ObservableObject {
             try? fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
         }
         return dir
-    }
+    }()
 
+    /// Loads templates without blocking the main thread. Both the window and the
+    /// menu bar scenes call this on appear; the second call is a no-op while the
+    /// first read is in flight.
     func load() {
+        guard !isLoading else { return }
         if !fileManager.fileExists(atPath: templatesURL.path) {
             seedDefaultsIfNeeded()
         }
 
-        do {
-            let data = try Data(contentsOf: templatesURL)
-            templates = try JSONDecoder().decode([PromptTemplate].self, from: data)
-            lastError = nil
-        } catch {
-            lastError = "Failed to load templates: \(error.localizedDescription)"
-            templates = []
+        isLoading = true
+        let url = templatesURL
+        Task.detached(priority: .userInitiated) {
+            let decoded: [PromptTemplate]
+            do {
+                let data = try Data(contentsOf: url)
+                decoded = try JSONDecoder().decode([PromptTemplate].self, from: data)
+            } catch {
+                let message = "Failed to load templates: \(error.localizedDescription)"
+                await MainActor.run {
+                    self.isLoading = false
+                    self.lastError = message
+                    self.templates = []
+                }
+                return
+            }
+            await MainActor.run {
+                self.isLoading = false
+                self.templates = decoded
+                self.lastError = nil
+            }
         }
     }
 
     func save() {
-        do {
-            let encoder = JSONEncoder()
-            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-            let data = try encoder.encode(templates)
-            try data.write(to: templatesURL, options: .atomic)
-            lastError = nil
-        } catch {
-            lastError = "Failed to save templates: \(error.localizedDescription)"
+        let snapshot = templates
+        let url = templatesURL
+        Task.detached(priority: .utility) {
+            do {
+                let encoder = JSONEncoder()
+                encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+                let data = try encoder.encode(snapshot)
+                try data.write(to: url, options: .atomic)
+            } catch {
+                let message = "Failed to save templates: \(error.localizedDescription)"
+                await MainActor.run {
+                    self.lastError = message
+                }
+                return
+            }
+            await MainActor.run {
+                self.lastError = nil
+            }
         }
     }
 
     func importFromURL(_ url: URL) {
-        do {
-            let data = try Data(contentsOf: url)
-            let imported = try JSONDecoder().decode([PromptTemplate].self, from: data)
-            guard !imported.isEmpty else {
-                lastError = "Imported file contains no templates."
+        Task.detached(priority: .userInitiated) {
+            let imported: [PromptTemplate]
+            do {
+                let data = try Data(contentsOf: url)
+                imported = try JSONDecoder().decode([PromptTemplate].self, from: data)
+            } catch {
+                let message = "Import failed: \(error.localizedDescription)"
+                await MainActor.run {
+                    self.lastError = message
+                }
                 return
             }
-            templates = imported
-            save()
-            lastActionMessage = "Imported \(imported.count) template(s)."
-            lastError = nil
-        } catch {
-            lastError = "Import failed: \(error.localizedDescription)"
+            await MainActor.run {
+                guard !imported.isEmpty else {
+                    self.lastError = "Imported file contains no templates."
+                    return
+                }
+                self.templates = imported
+                self.lastError = nil
+                self.lastActionMessage = "Imported \(imported.count) template(s)."
+                self.save()
+            }
         }
     }
 

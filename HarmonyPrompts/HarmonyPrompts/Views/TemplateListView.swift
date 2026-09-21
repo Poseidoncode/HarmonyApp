@@ -1,28 +1,34 @@
 import SwiftUI
 
-struct TemplateListView: View {
-    let templates: [PromptTemplate]
-    @Binding var searchText: String
-    @Binding var selectedID: String?
-    var onImport: () -> Void = {}
-    var onOpenFolder: () -> Void = {}
-
-    @State private var selectedCategory: String = "All"
-
-    private var categories: [String] {
-        var set = Set<String>()
-        set.insert("All")
-        for t in templates {
-            if let cat = categoryFor(template: t) {
-                set.insert(cat)
-            }
-        }
-        return Array(set).sorted { $0 == "All" ? true : ($1 == "All" ? false : $0 < $1) }
+/// Lowercased search/category data, computed once per template per render.
+/// Previously every keystroke re-lowercased each template's strings ~4x
+/// (categories + filter + visible rows) and re-lowercased the query per item.
+struct TemplateSearchIndex {
+    struct Entry {
+        let template: PromptTemplate
+        let name: String
+        let id: String
+        let description: String
+        let category: String
     }
 
-    private func categoryFor(template: PromptTemplate) -> String? {
-        let name = template.name.lowercased()
-        let id = template.id.lowercased()
+    let entries: [Entry]
+
+    init(templates: [PromptTemplate]) {
+        entries = templates.map { template in
+            let name = template.name.lowercased()
+            let id = template.id.lowercased()
+            return Entry(
+                template: template,
+                name: name,
+                id: id,
+                description: template.description.lowercased(),
+                category: Self.category(lowercasedName: name, lowercasedID: id)
+            )
+        }
+    }
+
+    static func category(lowercasedName name: String, lowercasedID id: String) -> String {
         if name.contains("code") || id.contains("code") { return "Code" }
         if name.contains("bug") || id.contains("bug") { return "Bugs" }
         if name.contains("test") || id.contains("test") { return "Tests" }
@@ -31,27 +37,43 @@ struct TemplateListView: View {
         return "Prompt"
     }
 
-    private var filtered: [PromptTemplate] {
-        templates.filter { template in
-            let matchesCategory: Bool
-            if selectedCategory == "All" {
-                matchesCategory = true
-            } else {
-                matchesCategory = categoryFor(template: template) == selectedCategory
-            }
-
-            guard !searchText.isEmpty else { return matchesCategory }
-            let query = searchText.lowercased()
-            let matchesSearch = template.name.lowercased().contains(query)
-                || template.description.lowercased().contains(query)
-                || template.id.lowercased().contains(query)
-
-            return matchesCategory && matchesSearch
+    var categories: [String] {
+        var seen: Set<String> = ["All"]
+        for entry in entries {
+            seen.insert(entry.category)
         }
+        return seen.sorted { $0 == "All" ? true : ($1 == "All" ? false : $0 < $1) }
     }
 
+    func filtered(query: String, category: String) -> [Entry] {
+        entries.filter { entry in
+            if category != "All", entry.category != category {
+                return false
+            }
+            guard !query.isEmpty else { return true }
+            return entry.name.contains(query)
+                || entry.description.contains(query)
+                || entry.id.contains(query)
+        }
+    }
+}
+
+struct TemplateListView: View {
+    let templates: [PromptTemplate]
+    @Binding var selectedID: String?
+    var onImport: () -> Void = {}
+    var onOpenFolder: () -> Void = {}
+
+    // Owned locally so typing a query doesn't invalidate the parent view
+    // (which would needlessly re-render the prompt preview and its stats).
+    @State private var searchText = ""
+    @State private var selectedCategory: String = "All"
+
     var body: some View {
-        VStack(spacing: 0) {
+        let index = TemplateSearchIndex(templates: templates)
+        let categories = index.categories
+        let rows = index.filtered(query: searchText.lowercased(), category: selectedCategory)
+        return VStack(spacing: 0) {
             // MARK: - Header & Brand
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 8) {
@@ -146,7 +168,7 @@ struct TemplateListView: View {
                 .background(HarmonyTheme.borderDefault)
 
             // MARK: - Template List Content
-            if filtered.isEmpty {
+            if rows.isEmpty {
                 VStack(spacing: 8) {
                     Spacer()
                     Image(systemName: "doc.text.magnifyingglass")
@@ -167,9 +189,10 @@ struct TemplateListView: View {
             } else {
                 ScrollView {
                     LazyVStack(spacing: 6) {
-                        ForEach(filtered) { template in
+                        ForEach(rows, id: \.template.id) { row in
+                            let template = row.template
                             let isSelected = selectedID == template.id
-                            let category = categoryFor(template: template) ?? "Prompt"
+                            let category = row.category
 
                             Button {
                                 selectedID = template.id
