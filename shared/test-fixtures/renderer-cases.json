@@ -1,0 +1,11 @@
+[
+  { "name": "known", "template": "Hello {{language}}!", "values": { "language": "C#" }, "expected": "Hello C#!" },
+  { "name": "unknown", "template": "{{unknown}}", "values": {}, "expected": "{{unknown}}" },
+  { "name": "non recursive", "template": "{{x}} {{y}}", "values": { "x": "{{y}}", "y": "done" }, "expected": "{{y}} done" },
+  { "name": "repeat and empty", "template": "{{x}}{{x}}:{{empty}}", "values": { "x": "✅", "empty": "" }, "expected": "✅✅:" },
+  { "name": "ASCII case sensitive keys", "template": "{{A}}/{{a}}/{{a_b}}/{{a-b}}/{{9}}/{{中文}}/{{a b}}/{{}}", "values": { "A": "UP", "a": "lo", "a_b": "under", "a-b": "dash", "9": "nine", "中文": "ignored" }, "expected": "UP/lo/under/dash/nine/{{中文}}/{{a b}}/{{}}" },
+  { "name": "unicode and newline", "template": "你好👩🏽‍💻\n{{x}}\r\né", "values": { "x": "日本語 🧪" }, "expected": "你好👩🏽‍💻\n日本語 🧪\r\né" },
+  { "name": "literal replacement", "template": "{{x}}", "values": { "x": "$1\\path\n{{x}}" }, "expected": "$1\\path\n{{x}}" },
+  { "name": "nested braces scan", "template": "{{{x}}} {{x.y}} {{x!}}", "values": { "x": "ok" }, "expected": "{ok} {{x.y}} {{x!}}" },
+  { "name": "no matches", "template": "plain text", "values": { "x": "ignored" }, "expected": "plain text" }
+]

@@ -1,0 +1,8 @@
+# Local .NET / WPF outputs and portable release archives
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+TestResults/
+artifacts/

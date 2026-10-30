@@ -1,0 +1,18 @@
+[
+  { "name": "empty", "text": "", "chars": 0, "words": 0 },
+  { "name": "ASCII", "text": "Hello world", "chars": 11, "words": 2 },
+  { "name": "CJK not dictionary words", "text": "你好 世界", "chars": 5, "words": 2 },
+  { "name": "combining", "text": "é", "chars": 1, "words": 1 },
+  { "name": "CRLF grapheme", "text": "a\r\nb", "chars": 3, "words": 2 },
+  { "name": "family emoji", "text": "👨‍👩‍👧‍👦", "chars": 1, "words": 1 },
+  { "name": "skin tone ZWJ", "text": "👩🏽‍💻!", "chars": 2, "words": 1 },
+  { "name": "flags", "text": "🇹🇼 🇺🇸", "chars": 3, "words": 2 },
+  { "name": "keycap", "text": "1️⃣", "chars": 1, "words": 1 },
+  { "name": "Unicode spaces", "text": "a\u00a0b\u202fc\u3000d", "chars": 7, "words": 4 },
+  { "name": "controls", "text": " \t\n\r\n\u0085\u2028\u2029", "chars": 7, "words": 0 },
+  { "name": "ZWSP is not whitespace", "text": "a\u200bb", "chars": 3, "words": 1 },
+  { "name": "whitespace cluster first scalar", "text": "a \u0301b", "chars": 3, "words": 2 },
+  { "name": "Hangul Jamo", "text": "가", "chars": 1, "words": 1 },
+  { "name": "trim whitespace", "text": "  one\t two\n", "chars": 11, "words": 2 },
+  { "name": "BOM is not whitespace", "text": "a\ufeffb", "chars": 3, "words": 1 }
+]

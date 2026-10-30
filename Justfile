@@ -1,4 +1,4 @@
-# Harmony Prompts — macOS app
+# Harmony Prompts — native macOS and Windows apps
 set shell := ["bash", "-cu"]
 
 default:
@@ -6,6 +6,11 @@ default:
 
 app_dir := "HarmonyPrompts"
 app_scheme := "HarmonyPrompts"
+
+# Build and launch the Windows app in Debug (requires Git Bash and .NET 10 SDK)
+[windows]
+dev:
+    @bash "{{justfile_directory()}}/Windows/scripts/dev.sh"
 
 [private]
 build:

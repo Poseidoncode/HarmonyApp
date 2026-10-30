@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" PrivateAssets="all" />
+    <ProjectReference Include="../HarmonyPrompts.Core/HarmonyPrompts.Core.csproj" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Test the exact production ViewModels without loading WPF or Win32. -->
+    <Compile Include="../HarmonyPrompts.Windows/ViewModels/*.cs" Link="ViewModels/%(Filename)%(Extension)" />
+    <Compile Include="../HarmonyPrompts.Windows/Services/IUserInteraction.cs" Link="Services/IUserInteraction.cs" />
+    <Compile Include="../HarmonyPrompts.Windows/Services/PasteInputSequence.cs" Link="Services/PasteInputSequence.cs" />
+    <Content Include="../../shared/test-fixtures/*.json" Link="Fixtures/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../shared/templates.json" Link="Fixtures/templates.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../HarmonyPrompts/HarmonyPrompts/Resources/templates.json" Link="Fixtures/macos-templates.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

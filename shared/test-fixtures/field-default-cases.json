@@ -1,0 +1,21 @@
+[
+  { "name": "text missing", "field": { "name": "x", "label": "X", "type": "text" }, "expected": "" },
+  { "name": "text placeholder", "field": { "name": "x", "label": "X", "type": "text", "placeholder": "hint" }, "expected": "hint" },
+  { "name": "text empty beats placeholder", "field": { "name": "x", "label": "X", "type": "text", "defaultValue": "", "placeholder": "hint" }, "expected": "" },
+  { "name": "textarea placeholder", "field": { "name": "x", "label": "X", "type": "textarea", "placeholder": "多行\ntext" }, "expected": "多行\ntext" },
+  { "name": "textarea default", "field": { "name": "x", "label": "X", "type": "textarea", "defaultValue": "code", "placeholder": "hint" }, "expected": "code" },
+  { "name": "select first unchanged order", "field": { "name": "x", "label": "X", "type": "select", "options": ["z", "a"] }, "expected": "z" },
+  { "name": "select empty default", "field": { "name": "x", "label": "X", "type": "select", "defaultValue": "", "options": ["first"] }, "expected": "first" },
+  { "name": "select default not an option", "field": { "name": "x", "label": "X", "type": "select", "defaultValue": "other", "options": ["first"] }, "expected": "other" },
+  { "name": "radio empty", "field": { "name": "x", "label": "X", "type": "radio", "options": [] }, "expected": "" },
+  { "name": "radio first", "field": { "name": "x", "label": "X", "type": "radio", "options": ["b", "a"] }, "expected": "b" },
+  { "name": "radio default", "field": { "name": "x", "label": "X", "type": "radio", "options": ["b", "a"], "defaultValue": "a" }, "expected": "a" },
+  { "name": "checkbox true mixed", "field": { "name": "x", "label": "X", "type": "checkbox", "defaultValue": "TrUe" }, "expected": "true" },
+  { "name": "checkbox custom checked", "field": { "name": "x", "label": "X", "type": "checkbox", "defaultValue": "true", "checkedValue": "已勾選", "uncheckedValue": "no" }, "expected": "已勾選" },
+  { "name": "checkbox missing false", "field": { "name": "x", "label": "X", "type": "checkbox" }, "expected": "" },
+  { "name": "checkbox custom false", "field": { "name": "x", "label": "X", "type": "checkbox", "defaultValue": "false", "uncheckedValue": "no" }, "expected": "no" },
+  { "name": "checkbox no trim", "field": { "name": "x", "label": "X", "type": "checkbox", "defaultValue": " true ", "uncheckedValue": "off" }, "expected": "off" },
+  { "name": "checkbox numeric not true", "field": { "name": "x", "label": "X", "type": "checkbox", "defaultValue": "1" }, "expected": "" },
+  { "name": "checkbox empty checked", "field": { "name": "x", "label": "X", "type": "checkbox", "defaultValue": "true", "checkedValue": "" }, "expected": "" },
+  { "name": "text null", "field": { "name": "x", "label": "X", "type": "text", "defaultValue": null, "placeholder": "fallback" }, "expected": "fallback" }
+]

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Resources/HarmonyPrompts.ico</ApplicationIcon>
+    <AssemblyName>HarmonyPrompts</AssemblyName>
+    <RootNamespace>HarmonyPrompts.Windows</RootNamespace>
+    <Version>1.0.0</Version>
+    <Product>Harmony Prompts</Product>
+    <Description>Offline prompt templates for Windows</Description>
+    <Company>HarmonyApp</Company>
+    <Copyright>Copyright HarmonyApp contributors</Copyright>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../HarmonyPrompts.Core/HarmonyPrompts.Core.csproj" />
+    <Content Include="../../shared/templates.json" Link="Resources/templates.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+    <Resource Include="Resources/HarmonyPrompts.ico" />
+    <InternalsVisibleTo Include="HarmonyPrompts.PasteHarness" />
+  </ItemGroup>
+</Project>

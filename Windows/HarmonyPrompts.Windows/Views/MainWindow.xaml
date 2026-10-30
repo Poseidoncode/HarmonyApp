@@ -1,0 +1,118 @@
+<Window x:Class="HarmonyPrompts.Windows.Views.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:local="clr-namespace:HarmonyPrompts.Windows.Views"
+ Title="Harmony Prompts" Width="1080" Height="820" MinWidth="800" MinHeight="560"
+ Icon="/Resources/HarmonyPrompts.ico" WindowStartupLocation="CenterScreen"
+ FontSize="{Binding TextSize}" AutomationProperties.Name="Harmony Prompts">
+ <Window.InputBindings>
+  <KeyBinding Key="C" Modifiers="Control+Shift" Command="{Binding CopyCommand}" />
+  <KeyBinding Key="V" Modifiers="Control+Alt" Command="{Binding PasteCommand}" />
+  <KeyBinding Key="O" Modifiers="Control" Command="{Binding ImportCommand}" />
+  <KeyBinding Key="F5" Command="{Binding ReloadCommand}" />
+ </Window.InputBindings>
+ <Window.Resources>
+  <DataTemplate x:Key="TextField">
+   <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding Help}"
+    AutomationProperties.Name="{Binding Label}" AutomationProperties.HelpText="{Binding Help}" />
+  </DataTemplate>
+  <DataTemplate x:Key="TextAreaField">
+   <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" AcceptsTab="False"
+    MinHeight="110" MaxHeight="260" VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap"
+    ToolTip="{Binding Help}" AutomationProperties.Name="{Binding Label}" AutomationProperties.HelpText="{Binding Help}" />
+  </DataTemplate>
+  <DataTemplate x:Key="SelectField">
+   <ComboBox ItemsSource="{Binding Options}" IsEditable="True" IsReadOnly="True"
+    Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="{Binding Label}" />
+  </DataTemplate>
+  <DataTemplate x:Key="RadioField">
+   <ItemsControl ItemsSource="{Binding RadioOptions}" AutomationProperties.Name="{Binding Label}">
+    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+    <ItemsControl.ItemTemplate><DataTemplate>
+     <RadioButton Content="{Binding Text}" GroupName="{Binding GroupId}" IsChecked="{Binding IsSelected, Mode=TwoWay}"
+      Margin="0,4,16,8" AutomationProperties.Name="{Binding Text}" />
+    </DataTemplate></ItemsControl.ItemTemplate>
+   </ItemsControl>
+  </DataTemplate>
+  <DataTemplate x:Key="CheckboxField">
+   <CheckBox Content="{Binding Label}" IsChecked="{Binding IsChecked, Mode=TwoWay}"
+    Padding="4" AutomationProperties.Name="{Binding Label}" />
+  </DataTemplate>
+  <local:FieldTemplateSelector x:Key="FieldSelector" Text="{StaticResource TextField}" Textarea="{StaticResource TextAreaField}"
+   Select="{StaticResource SelectField}" Radio="{StaticResource RadioField}" Checkbox="{StaticResource CheckboxField}" />
+ </Window.Resources>
+ <Grid Margin="18">
+  <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+  <DockPanel Margin="0,0,0,16">
+   <Button DockPanel.Dock="Right" Content="_Settings" Command="{Binding SettingsCommand}" AutomationProperties.AutomationId="SettingsButton" />
+   <StackPanel><TextBlock Text="Harmony Prompts" FontSize="25" FontWeight="SemiBold" />
+    <TextBlock Text="Your prompt library. Completely offline." Opacity="0.7" TextWrapping="Wrap" /></StackPanel>
+  </DockPanel>
+  <Grid Grid.Row="1">
+   <Grid.ColumnDefinitions><ColumnDefinition Width="260" MinWidth="200" /><ColumnDefinition Width="10" /><ColumnDefinition Width="*" MinWidth="420" /></Grid.ColumnDefinitions>
+   <Grid>
+    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+    <StackPanel Margin="0,0,8,10">
+     <Label Content="_Search templates" Target="{Binding ElementName=SearchBox}" Padding="0,0,0,4" />
+     <TextBox x:Name="SearchBox" Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}"
+      AutomationProperties.Name="Search templates" AutomationProperties.AutomationId="SearchBox" />
+    </StackPanel>
+    <TextBlock Grid.Row="1" Text="{Binding TemplateCount}" Opacity="0.7" Margin="0,0,0,8" />
+    <ListBox Grid.Row="2" ItemsSource="{Binding FilteredTemplates}" SelectedItem="{Binding VisibleSelection, Mode=TwoWay}"
+     AutomationProperties.Name="Templates" AutomationProperties.AutomationId="TemplateList"
+     ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
+     <ListBox.ItemTemplate><DataTemplate><StackPanel Margin="6,10">
+      <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap" />
+      <TextBlock Text="{Binding Description}" Opacity="0.72" TextWrapping="Wrap" Margin="0,4,0,0" />
+     </StackPanel></DataTemplate></ListBox.ItemTemplate>
+    </ListBox>
+    <WrapPanel Grid.Row="3" Margin="0,12,0,0">
+     <Button Content="_Import JSON…" AutomationProperties.AutomationId="ImportButton" Command="{Binding ImportCommand}" ToolTip="Replaces the entire collection after validation (Ctrl+O)" />
+     <Button Content="_Folder" Command="{Binding OpenFolderCommand}" ToolTip="Open the user templates folder" />
+     <Button Content="_Reload" AutomationProperties.AutomationId="ReloadButton" Command="{Binding ReloadCommand}" ToolTip="Reload templates from disk (F5)" />
+    </WrapPanel>
+   </Grid>
+   <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+   <Grid Grid.Column="2" Margin="12,0,0,0">
+    <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+     <StackPanel Margin="0,0,10,0">
+      <TextBlock Text="{Binding SelectedTemplate.Name, TargetNullValue=Import JSON to start, FallbackValue=Import JSON to start}" FontSize="22" FontWeight="SemiBold" TextWrapping="Wrap" />
+      <TextBlock Text="{Binding SelectedTemplate.Description}" Opacity="0.75" TextWrapping="Wrap" Margin="0,6,0,18" />
+      <ItemsControl ItemsSource="{Binding Fields}" KeyboardNavigation.TabNavigation="Continue">
+       <ItemsControl.ItemTemplate><DataTemplate><StackPanel Margin="0,0,0,16">
+        <TextBlock Text="{Binding Label}" FontWeight="SemiBold" Margin="0,0,0,6" />
+        <ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource FieldSelector}" IsTabStop="False" />
+       </StackPanel></DataTemplate></ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <TextBlock Text="Live preview" FontWeight="SemiBold" Margin="0,6,0,6" />
+      <TextBox Text="{Binding Preview, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True"
+       MinHeight="190" MaxHeight="450" VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto"
+       AutomationProperties.Name="Generated prompt preview" AutomationProperties.AutomationId="PreviewBox" />
+      <TextBlock Text="{Binding StatsLabel}" Opacity="0.7" Margin="0,6,0,12" AutomationProperties.LiveSetting="Polite" />
+     </StackPanel>
+    </ScrollViewer>
+    <StackPanel Grid.Row="1" Margin="0,12,0,0">
+     <TextBlock Text="{Binding TargetLabel}" TextWrapping="Wrap" Opacity="0.75" Margin="0,0,0,8" AutomationProperties.AutomationId="PasteTargetLabel" />
+     <TextBlock Text="{Binding AutoPasteNotice}"
+      TextWrapping="Wrap" FontSize="12" Opacity="0.7" Margin="0,0,0,8" />
+     <WrapPanel>
+      <Button Content="_Copy" Command="{Binding CopyCommand}" ToolTip="Copy generated prompt (Ctrl+Shift+C)"
+       AutomationProperties.AutomationId="CopyButton" MinWidth="95" />
+      <Button Content="Copy &amp; _Paste" Command="{Binding PasteCommand}" ToolTip="Experimental; off by default. Session opt-in in Settings (Ctrl+Alt+V when enabled)."
+       AutomationProperties.AutomationId="PasteButton" MinWidth="140" FontWeight="SemiBold" />
+     </WrapPanel>
+    </StackPanel>
+   </Grid>
+  </Grid>
+  <Border Grid.Row="2" Margin="0,14,0,0" Padding="10" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+   <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="145" /></Grid.ColumnDefinitions>
+    <TextBlock Text="{Binding Message}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,10,0"
+     AutomationProperties.LiveSetting="Polite" AutomationProperties.AutomationId="StatusMessage" />
+    <StackPanel Grid.Column="1"><TextBlock Text="Text size" Opacity="0.7" />
+     <Slider Minimum="12" Maximum="22" Value="{Binding TextSize}" TickFrequency="1" IsSnapToTickEnabled="True"
+      AutomationProperties.Name="Interface text size" /></StackPanel>
+   </Grid>
+  </Border>
+ </Grid>
+</Window>

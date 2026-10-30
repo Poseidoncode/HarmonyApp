@@ -1,0 +1,22 @@
+<Window x:Class="HarmonyPrompts.Windows.Views.SettingsWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Title="Harmony Prompts Settings" Width="620" Height="600" MinWidth="430" MinHeight="380"
+ Icon="/Resources/HarmonyPrompts.ico" WindowStartupLocation="CenterOwner">
+ <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="24">
+  <TextBlock Text="Harmony Prompts Settings" FontSize="22" FontWeight="SemiBold" Margin="0,0,0,20" />
+  <TextBlock Text="Templates storage" FontWeight="SemiBold" Margin="0,0,0,8" />
+  <TextBox Text="{Binding TemplatesPath, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" AutomationProperties.Name="Templates storage path" />
+  <Button Content="_Open Templates Folder" Command="{Binding OpenFolderCommand}" HorizontalAlignment="Left" Margin="0,10,0,22" />
+  <TextBlock Text="Experimental Copy &amp; Paste" FontWeight="SemiBold" Margin="0,0,0,8" />
+  <CheckBox Content="Enable experimental Auto Paste for this session (not for sensitive text)"
+   IsChecked="{Binding EnableAutoPaste, Mode=TwoWay}" Margin="0,4,0,12"
+   AutomationProperties.Name="Enable experimental Auto Paste for this session"
+   AutomationProperties.AutomationId="EnableAutoPaste" />
+  <TextBlock Text="{Binding PasteHelp}" TextWrapping="Wrap" Margin="0,0,0,20" />
+  <TextBlock Text="Notification area &amp; keyboard" FontWeight="SemiBold" Margin="0,0,0,8" />
+  <TextBlock Text="{Binding LifecycleHelp}" TextWrapping="Wrap" Margin="0,0,0,20" />
+  <TextBlock Text="Privacy" FontWeight="SemiBold" Margin="0,0,0,8" />
+  <TextBlock Text="{Binding Privacy}" TextWrapping="Wrap" />
+  <Button Content="_Close" IsCancel="True" Click="CloseClick" HorizontalAlignment="Right" Margin="0,24,0,0" />
+ </StackPanel></ScrollViewer>
+</Window>

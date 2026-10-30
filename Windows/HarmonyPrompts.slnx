@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="HarmonyPrompts.Core/HarmonyPrompts.Core.csproj" />
+  <Project Path="HarmonyPrompts.Tests/HarmonyPrompts.Tests.csproj" />
+  <Project Path="HarmonyPrompts.PasteHarness/HarmonyPrompts.PasteHarness.csproj" />
+  <Project Path="HarmonyPrompts.Windows/HarmonyPrompts.Windows.csproj" />
+</Solution>

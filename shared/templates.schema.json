@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Harmony Prompts template collection",
+  "description": "Shared macOS/Windows data contract. Empty collections can be loaded, but importing an empty collection is rejected by the application. Unknown properties are permitted. Duplicate field names are rejected by Windows rather than triggering the Swift dictionary trap.",
+  "type": "array",
+  "items": { "$ref": "#/$defs/template" },
+  "$defs": {
+    "template": {
+      "type": "object",
+      "required": ["id", "name", "description", "template", "fields"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "template": { "type": "string" },
+        "fields": { "type": "array", "items": { "$ref": "#/$defs/field" } }
+      },
+      "additionalProperties": true
+    },
+    "field": {
+      "type": "object",
+      "required": ["name", "label", "type"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "type": { "enum": ["text", "textarea", "select", "radio", "checkbox"] },
+        "placeholder": { "type": ["string", "null"] },
+        "options": { "type": ["array", "null"], "items": { "type": "string" } },
+        "defaultValue": { "type": ["string", "null"] },
+        "checkedValue": { "type": ["string", "null"] },
+        "uncheckedValue": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    }
+  }
+}

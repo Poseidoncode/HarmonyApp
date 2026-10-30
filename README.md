@@ -1,8 +1,31 @@
-# Harmony Prompts — macOS
+# Harmony Prompts — macOS & Windows
 
-Quick-insert AI prompt templates via a menu bar app. Works in Cursor, browser, Terminal, anywhere.
+Offline AI prompt templates with two native apps: SwiftUI on macOS and C# / WPF on Windows. Shared JSON templates, five dynamic field types, live preview, and clipboard actions.
 
-See [`HarmonyPrompts/README.md`](HarmonyPrompts/README.md) for details.
+- **macOS:** existing menu bar app and installation below; see [`HarmonyPrompts/README.md`](HarmonyPrompts/README.md).
+- **Windows:** new .NET 10 native app with notification-area access; see [`Windows/README.md`](Windows/README.md) for running, building, and portable ZIP packaging.
+- **Verification:** [`Windows/IMPLEMENTATION_STATUS.md`](Windows/IMPLEMENTATION_STATUS.md) records actual results and untested environments. Windows Auto Paste is **off by default** pending safety acceptance; Settings permits experimental session-only opt-in. Copy + manual Ctrl+V is the recommended mode.
+
+## Windows Quick Start
+
+The locally generated portable archive is `Windows/artifacts/HarmonyPrompts-1.0.0-win-x64.zip` (build output, not committed or uploaded). Extract **all** files into a writable folder and run `HarmonyPrompts.exe`; keep `Resources/templates.json` alongside it. The self-contained archive does not require a separately installed .NET runtime. It is unsigned, so Windows may show a publisher warning; do not disable OS protections.
+
+For development on Windows with `just`, Git Bash and the .NET 10 SDK, run `just dev` from the repository root. It restores/builds and launches the Debug app. It uses `dotnet` on PATH, or the user-local SDK at `%LOCALAPPDATA%\HarmonyBuild\dotnet` when PATH has no `dotnet`. Closing the window leaves the app in the tray; choose **Exit** there before restarting development.
+
+To build from source on Windows with the .NET 10 SDK:
+
+```powershell
+dotnet restore Windows/HarmonyPrompts.slnx --locked-mode
+dotnet build Windows/HarmonyPrompts.slnx -c Release --no-restore
+dotnet test Windows/HarmonyPrompts.Tests/HarmonyPrompts.Tests.csproj -c Release --no-build --no-restore
+dotnet run --project Windows/HarmonyPrompts.Windows -c Release --no-build
+```
+
+Windows templates live in `%APPDATA%\HarmonyPrompts\templates.json`. Imports replace the whole collection only after validation and a successful disk write. Closing the window hides it to the notification area; use the tray menu **Exit** to quit. No Windows release has been uploaded.
+
+## macOS
+
+The following screenshots and platform-specific shortcuts describe the unchanged macOS app.
 
 ## Screenshots
 
@@ -73,10 +96,9 @@ Until permission is granted, use **Copy** + manual **⌘V**.
 ## Project Layout
 
 ```
-HarmonyPrompts/
-├── HarmonyPrompts/          # SwiftUI app source
-├── HarmonyPrompts.xcodeproj
-└── scripts/                 # Icon build scripts
+HarmonyPrompts/             # Original macOS project (unchanged)
+Windows/                   # WPF app, Core, tests, local desktop harness, docs
+shared/                    # Compatible templates, JSON schema, golden fixtures
 ```
 
 ## Security & Privacy
