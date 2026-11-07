@@ -1,108 +1,48 @@
-# Harmony Prompts — macOS & Windows
+# Harmony Prompts
 
-Offline AI prompt templates with two native apps: SwiftUI on macOS and C# / WPF on Windows. Shared JSON templates, five dynamic field types, live preview, and clipboard actions.
+**A private, offline workspace for reusable AI prompts.**
 
-- **macOS:** existing menu bar app and installation below; see [`HarmonyPrompts/README.md`](HarmonyPrompts/README.md).
-- **Windows:** new .NET 10 native app with notification-area access; see [`Windows/README.md`](Windows/README.md) for running, building, and portable ZIP packaging.
-- **Verification:** [`Windows/IMPLEMENTATION_STATUS.md`](Windows/IMPLEMENTATION_STATUS.md) records actual results and untested environments. Windows Auto Paste is **off by default** pending safety acceptance; Settings permits experimental session-only opt-in. Copy + manual Ctrl+V is the recommended mode.
+Create prompt templates, fill in structured fields, and preview the result before copying it into your workflow. Available as native apps for macOS and Windows, with a shared JSON template format.
 
-## Windows Quick Start
+[macOS](#macos) · [Windows](#windows) · [Privacy & security](#privacy--security)
 
-The locally generated portable archive is `Windows/artifacts/HarmonyPrompts-1.0.0-win-x64.zip` (build output, not committed or uploaded). Extract **all** files into a writable folder and run `HarmonyPrompts.exe`; keep `Resources/templates.json` alongside it. The self-contained archive does not require a separately installed .NET runtime. It is unsigned, so Windows may show a publisher warning; do not disable OS protections.
+## Product preview
 
-For development on Windows with `just`, Git Bash and the .NET 10 SDK, run `just dev` from the repository root. It restores/builds and launches the Debug app. It uses `dotnet` on PATH, or the user-local SDK at `%LOCALAPPDATA%\HarmonyBuild\dotnet` when PATH has no `dotnet`. Closing the window leaves the app in the tray; choose **Exit** there before restarting development.
+| Template library | Live preview |
+| :---: | :---: |
+| <img src="Assets/Picture1.png" alt="Browsing and configuring prompt templates" width="400" /> | <img src="Assets/Picture2.png" alt="Previewing a rendered prompt and copy actions" width="400" /> |
+| Browse templates and configure dynamic fields. | Review the rendered prompt, then copy or paste it into your workflow. |
 
-To build from source on Windows with the .NET 10 SDK:
+## Designed for everyday use
 
-```powershell
-dotnet restore Windows/HarmonyPrompts.slnx --locked-mode
-dotnet build Windows/HarmonyPrompts.slnx -c Release --no-restore
-dotnet test Windows/HarmonyPrompts.Tests/HarmonyPrompts.Tests.csproj -c Release --no-build --no-restore
-dotnet run --project Windows/HarmonyPrompts.Windows -c Release --no-build
-```
-
-Windows templates live in `%APPDATA%\HarmonyPrompts\templates.json`. Imports replace the whole collection only after validation and a successful disk write. Closing the window hides it to the notification area; use the tray menu **Exit** to quit. No Windows release has been uploaded.
+- **Reusable templates** — Keep frequently used prompts organized and ready to adapt.
+- **Structured fields** — Customize prompts with five dynamic field types instead of rewriting them each time.
+- **Live preview** — Review the rendered prompt and its character and word counts before you use it.
+- **Quick handoff** — Copy on both platforms; macOS also supports one-step paste.
+- **Shared format** — Use compatible JSON templates across the macOS and Windows apps.
 
 ## macOS
 
-The following screenshots and platform-specific shortcuts describe the unchanged macOS app.
+Open Harmony Prompts from the menu bar while working in Cursor, VS Code, a browser, Terminal, or another app.
 
-## Screenshots
-
-| Template Selection & Configuration | Real-Time Preview & Quick Paste |
-| :---: | :---: |
-| <img src="Assets/Picture1.png" alt="Template Selection & Parameters" width="400" /> | <img src="Assets/Picture2.png" alt="Rendered Output & Copy Actions" width="400" /> |
-| Browse and search prompt templates, then configure dynamic parameter fields (language, code snippet, focus area, etc.). | Live preview of rendered prompt with character/word count, supporting one-click copy (`⌘C`) and auto-paste (`⌘⌥V`). |
-
-## Features
-
-- **Menu Bar Quick Access**: Resides in the macOS menu bar for fast access across Cursor, VS Code, browsers, Terminal, or any other application.
-- **Dynamic Prompt Templates**: Supports multi-variable parameter configurations and custom form controls (text input, multiline text, dropdown selection).
-- **Live Preview & Statistics**: Real-time prompt output rendering with live character and word count tracking.
-- **Instant Injection (Copy & Paste)**: One-click clipboard copy (`⌘C`) or direct auto-paste into active frontmost application (`⌘⌥V`).
-- **Flexible Template Management**: Support importing templates via JSON or directly editing the local `templates.json` configuration.
-
-## Installation
-
-### One-line Install (Recommended)
-
-Install and build Harmony Prompts directly to `/Applications` via curl:
+**Install:**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Poseidoncode/HarmonyApp/main/install.sh | bash
 ```
 
-> **Requirement**: macOS 14.0+ with Xcode installed.
+The installer requires macOS 14.0+ and Xcode. You can also [build from source](HarmonyPrompts/README.md#build-from-source) or open `HarmonyPrompts/HarmonyPrompts.xcodeproj` in Xcode.
 
-### Build from Source
+**Get started:** Launch Harmony Prompts from `/Applications` or Spotlight, open it from the menu bar, then choose a template and select **Copy** (`⌘C`) or **Copy & Paste** (`⌘⌥V`). Run the app from `/Applications/Harmony Prompts.app` so Accessibility permission remains valid.
 
-```bash
-git clone https://github.com/Poseidoncode/HarmonyApp.git
-cd HarmonyApp
-./install.sh
-```
+**Paste permission:** **Copy & Paste** requires enabling Harmony Prompts under **System Settings → Privacy & Security → Accessibility**. Until then, use **Copy** and press `⌘V` manually.
 
-Or open `HarmonyPrompts/HarmonyPrompts.xcodeproj` in Xcode and press Run (`⌘R`).
+## Windows
 
-<details>
-<summary>Troubleshooting Xcode setup</summary>
+The Windows app is a native WPF application with notification-area access. **A Windows release has not been published yet.** The [Windows guide](Windows/README.md) covers development, building, and portable packaging with the .NET 10 SDK. See the [implementation status](Windows/IMPLEMENTATION_STATUS.md) for verification details.
 
-If you encounter `xcodebuild` path or license errors, run:
+Auto Paste is off by default. Copying and pasting manually with **Ctrl+V** is the recommended mode; Settings offers experimental, session-only opt-in.
 
-```bash
-sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
-sudo xcodebuild -license accept
-xcodebuild -runFirstLaunch
-```
+## Privacy & security
 
-</details>
-
-## Quick Start
-
-1. Launch **Harmony Prompts** from `/Applications` or Spotlight.
-2. Click the menu bar bubble icon.
-3. Pick a template, fill in parameters, and click **Copy** (`⌘C`) or **Copy & Paste** (`⌘⌥V`).
-
-Run from **`/Applications/Harmony Prompts.app`** (not the `build/` folder) so Accessibility permission stays valid.
-
-## Accessibility (Copy & Paste)
-
-**Copy & Paste** requires **System Settings -> Privacy & Security -> Accessibility**.
-
-Enable **Harmony Prompts** once. If you see duplicate entries, remove old ones pointing at `build/` paths.
-
-Until permission is granted, use **Copy** + manual **⌘V**.
-
-## Project Layout
-
-```
-HarmonyPrompts/             # Original macOS project (unchanged)
-Windows/                   # WPF app, Core, tests, local desktop harness, docs
-shared/                    # Compatible templates, JSON schema, golden fixtures
-```
-
-## Security & Privacy
-
-Harmony Prompts operates 100% locally with zero data collection, no telemetry, and no outbound network calls. All templates and prompt evaluations remain strictly on your local machine.
-
-For security policies, vulnerability reporting, and threat model details, see [SECURITY.md](SECURITY.md).
+Harmony Prompts runs locally, with no telemetry or outbound network requests. Templates and prompt evaluations remain on your device. See [SECURITY.md](SECURITY.md) for security policies and vulnerability reporting.
