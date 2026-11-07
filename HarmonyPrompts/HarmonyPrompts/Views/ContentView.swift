@@ -29,36 +29,47 @@ struct ContentView: View {
     }
 
     var body: some View {
-        HSplitView {
-            TemplateListView(
-                templates: store.templates,
-                selectedID: $selectedID,
-                onImport: { showImportPanel = true },
-                onOpenFolder: { store.revealTemplatesInFinder() }
-            )
-            .frame(minWidth: 230, idealWidth: 250, maxWidth: 290)
+        GeometryReader { geometry in
+            let scale = contentScale(for: geometry.size)
 
-            Group {
-                if let template = selectedTemplate {
-                    TemplateFormView(
-                        template: template,
-                        values: $fieldValues,
-                        generatedPrompt: generatedPrompt,
-                        onCopy: copyPrompt,
-                        onCopyAndPaste: copyAndPastePrompt
-                    )
-                } else {
-                    EmptyStateAgenticView(
-                        templates: store.templates,
-                        onSelect: { templateId in
-                            selectedID = templateId
-                        }
-                    )
+            HSplitView {
+                TemplateListView(
+                    templates: store.templates,
+                    selectedID: $selectedID,
+                    onImport: { showImportPanel = true },
+                    onOpenFolder: { store.revealTemplatesInFinder() }
+                )
+                .frame(minWidth: 230, idealWidth: 250, maxWidth: 290)
+
+                Group {
+                    if let template = selectedTemplate {
+                        TemplateFormView(
+                            template: template,
+                            values: $fieldValues,
+                            generatedPrompt: generatedPrompt,
+                            onCopy: copyPrompt,
+                            onCopyAndPaste: copyAndPastePrompt
+                        )
+                    } else {
+                        EmptyStateAgenticView(
+                            templates: store.templates,
+                            onSelect: { templateId in
+                                selectedID = templateId
+                            }
+                        )
+                    }
                 }
+                .frame(minWidth: 380)
             }
-            .frame(minWidth: 380)
+            .scaleEffect(scale, anchor: .topLeading)
+            .frame(
+                width: geometry.size.width / scale,
+                height: geometry.size.height / scale,
+                alignment: .topLeading
+            )
+            .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
         }
-        .frame(width: 660, height: 530)
+        .frame(minWidth: 610, minHeight: 430)
         .background(HarmonyTheme.surfacePage)
         .onAppear {
             // Menu bar window opens after click — capture target app before we took focus.
@@ -160,6 +171,14 @@ struct ContentView: View {
         } message: {
             Text("Copy & Paste needs Accessibility permission for Harmony Prompts.\n\n1. Open Settings\n2. Enable **Harmony Prompts** (path: /Applications/Harmony Prompts.app)\n3. Remove any old entries from build/ folder\n4. Retry Copy & Paste")
         }
+    }
+
+    private func contentScale(for size: CGSize) -> CGFloat {
+        guard size.width > 0, size.height > 0 else { return 1 }
+        // 660×530 is the original layout size; scale the whole UI with the window,
+        // while keeping a readable range for unusually small or large windows.
+        let fitScale = min(size.width / 660, size.height / 530)
+        return min(2, max(0.8, fitScale))
     }
 
     private var toastIcon: String {
