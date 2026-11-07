@@ -6,14 +6,18 @@ Create prompt templates, fill in structured fields, and preview the result befor
 
 [macOS](#macos) · [Windows](#windows) · [Privacy & security](#privacy--security)
 
-## Product preview
+<a id="product-preview"></a>
+
+## ⭒ Product preview
 
 | Template library | Live preview |
 | :---: | :---: |
 | <img src="Assets/Picture1.png" alt="Browsing and configuring prompt templates" width="400" /> | <img src="Assets/Picture2.png" alt="Previewing a rendered prompt and copy actions" width="400" /> |
 | Browse templates and configure dynamic fields. | Review the rendered prompt, then copy or paste it into your workflow. |
 
-## Designed for everyday use
+<a id="everyday-use"></a>
+
+## ✧ Designed for everyday use
 
 - **Reusable templates** — Keep frequently used prompts organized and ready to adapt.
 - **Structured fields** — Customize prompts with five dynamic field types instead of rewriting them each time.
@@ -21,7 +25,9 @@ Create prompt templates, fill in structured fields, and preview the result befor
 - **Quick handoff** — Copy on both platforms; macOS also supports one-step paste.
 - **Shared format** — Use compatible JSON templates across the macOS and Windows apps.
 
-## macOS
+<a id="macos"></a>
+
+## ⌘ macOS
 
 Open Harmony Prompts from the menu bar while working in Cursor, VS Code, a browser, Terminal, or another app.
 
@@ -37,12 +43,16 @@ The installer requires macOS 14.0+ and Xcode. You can also [build from source](H
 
 **Paste permission:** **Copy & Paste** requires enabling Harmony Prompts under **System Settings → Privacy & Security → Accessibility**. Until then, use **Copy** and press `⌘V` manually.
 
-## Windows
+<a id="windows"></a>
+
+## ⊞ Windows
 
 The Windows app is a native WPF application with notification-area access. **A Windows release has not been published yet.** The [Windows guide](Windows/README.md) covers development, building, and portable packaging with the .NET 10 SDK. See the [implementation status](Windows/IMPLEMENTATION_STATUS.md) for verification details.
 
 Auto Paste is off by default. Copying and pasting manually with **Ctrl+V** is the recommended mode; Settings offers experimental, session-only opt-in.
 
-## Privacy & security
+<a id="privacy--security"></a>
+
+## ☀ Privacy & security
 
 Harmony Prompts runs locally, with no telemetry or outbound network requests. Templates and prompt evaluations remain on your device. See [SECURITY.md](SECURITY.md) for security policies and vulnerability reporting.
