@@ -8,7 +8,7 @@ Create prompt templates, fill in structured fields, and preview the result befor
 
 <a id="product-preview"></a>
 
-## ⭒ Product preview
+## .✦ ݁˖ Product preview
 
 | Template library | Live preview |
 | :---: | :---: |
@@ -17,7 +17,7 @@ Create prompt templates, fill in structured fields, and preview the result befor
 
 <a id="everyday-use"></a>
 
-## ✧ Designed for everyday use
+## 🍀 Designed for everyday use
 
 - **Reusable templates** — Keep frequently used prompts organized and ready to adapt.
 - **Structured fields** — Customize prompts with five dynamic field types instead of rewriting them each time.
