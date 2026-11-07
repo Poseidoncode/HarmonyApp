@@ -61,6 +61,7 @@ struct ContentView: View {
         .frame(minWidth: 610, minHeight: 430)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(HarmonyTheme.surfacePage)
+        .preferredColorScheme(.light)
         .onAppear {
             // Menu bar window opens after click — capture target app before we took focus.
             FocusTracker.shared.captureCurrentFrontmost()

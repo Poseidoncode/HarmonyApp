@@ -32,6 +32,8 @@ struct FieldEditorView: View {
             case .text:
                 TextField(field.placeholder ?? "Enter \(field.label)...", text: $value)
                     .font(.system(size: 12, design: .rounded))
+                    .textFieldStyle(.plain)
+                    .foregroundStyle(HarmonyTheme.textPrimary)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 7)
                     .background(HarmonyTheme.surfaceClickable)
@@ -40,12 +42,12 @@ struct FieldEditorView: View {
                         RoundedRectangle(cornerRadius: 7, style: .continuous)
                             .stroke(HarmonyTheme.borderDefault, lineWidth: 1)
                     )
-                    .textFieldStyle(.plain)
 
             case .textarea:
                 VStack(spacing: 0) {
                     TextEditor(text: $value)
                         .font(.system(size: 11, design: .monospaced))
+                        .foregroundStyle(HarmonyTheme.textPrimary)
                         .scrollContentBackground(.hidden)
                         .padding(6)
                         .frame(minHeight: 70, maxHeight: 110)

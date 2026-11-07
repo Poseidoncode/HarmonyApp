@@ -108,6 +108,7 @@ struct TemplateListView: View {
                     TextField("Search prompt templates…", text: $searchText)
                         .font(.system(size: 12, design: .rounded))
                         .textFieldStyle(.plain)
+                        .foregroundStyle(HarmonyTheme.textPrimary)
 
                     if !searchText.isEmpty {
                         Button {
