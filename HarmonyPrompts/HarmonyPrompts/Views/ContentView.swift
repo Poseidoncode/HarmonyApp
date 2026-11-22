@@ -101,15 +101,22 @@ struct ContentView: View {
             switch result {
             case .success(let urls):
                 guard let url = urls.first else { return }
-                if url.startAccessingSecurityScopedResource() {
-                    defer { url.stopAccessingSecurityScopedResource() }
-                    // Read inside the scope; only the decode runs in the
-                    // background. Selection and the confirmation toast follow
-                    // via store.templates / store.lastActionMessage observers.
+                // Keep the security scope open for the whole background read so
+                // a large file never blocks the main thread.
+                let scoped = url.startAccessingSecurityScopedResource()
+                let store = store
+                Task.detached(priority: .userInitiated) {
+                    defer { if scoped { url.stopAccessingSecurityScopedResource() } }
                     do {
-                        store.importFromData(try Data(contentsOf: url))
+                        let size = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
+                        guard size <= TemplateStore.maxImportBytes else {
+                            throw TemplateStoreError.invalid("File is larger than \(TemplateStore.maxImportBytes / 1_048_576) MB.")
+                        }
+                        let data = try Data(contentsOf: url)
+                        await MainActor.run { store.importFromData(data) }
                     } catch {
-                        store.reportError("Import failed: \(error.localizedDescription)")
+                        let message = "Import failed: \(error.localizedDescription)"
+                        await MainActor.run { store.reportError(message) }
                     }
                 }
             case .failure(let error):

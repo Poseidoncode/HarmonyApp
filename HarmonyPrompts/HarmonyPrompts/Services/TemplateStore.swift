@@ -2,11 +2,24 @@ import AppKit
 import Combine
 import Foundation
 
+enum TemplateStoreError: LocalizedError {
+    case invalid(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .invalid(let message): return message
+        }
+    }
+}
+
 @MainActor
 final class TemplateStore: ObservableObject {
     @Published private(set) var templates: [PromptTemplate] = []
     @Published private(set) var lastError: String?
     @Published var lastActionMessage: String?
+
+    /// Upper bound for an imported/loaded templates file.
+    nonisolated static let maxImportBytes = 10 * 1_048_576
 
     private let fileManager = FileManager.default
     private var isLoading = false
@@ -32,7 +45,11 @@ final class TemplateStore: ObservableObject {
             ?? fileManager.temporaryDirectory
         let dir = base.appendingPathComponent("HarmonyPrompts", isDirectory: true)
         if !fileManager.fileExists(atPath: dir.path) {
-            try? fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
+            do {
+                try fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
+            } catch {
+                postError("Could not create the templates folder: \(error.localizedDescription)")
+            }
         }
         return dir
     }()
@@ -57,8 +74,15 @@ final class TemplateStore: ObservableObject {
             await priorSave?.value
             let decoded: [PromptTemplate]
             do {
+                let size = (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
+                guard size <= TemplateStore.maxImportBytes else {
+                    throw TemplateStoreError.invalid("File is larger than \(TemplateStore.maxImportBytes / 1_048_576) MB.")
+                }
                 let data = try Data(contentsOf: url)
                 decoded = try JSONDecoder().decode([PromptTemplate].self, from: data)
+                if let problem = TemplateValidation.problem(in: decoded) {
+                    throw TemplateStoreError.invalid(problem)
+                }
             } catch {
                 let message = "Failed to load templates: \(error.localizedDescription)"
                 await MainActor.run {
@@ -89,6 +113,14 @@ final class TemplateStore: ObservableObject {
                 let encoder = JSONEncoder()
                 encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
                 let data = try encoder.encode(snapshot)
+                // Keep the previous file (even a corrupt one) so an import or
+                // save can never destroy the only copy of hand-edited data.
+                let backup = url.appendingPathExtension("bak")
+                let fm = FileManager.default
+                if fm.fileExists(atPath: url.path) {
+                    try? fm.removeItem(at: backup)
+                    try? fm.copyItem(at: url, to: backup)
+                }
                 try data.write(to: url, options: .atomic)
             } catch {
                 let message = "Failed to save templates: \(error.localizedDescription)"
@@ -115,7 +147,13 @@ final class TemplateStore: ObservableObject {
         Task.detached(priority: .userInitiated) {
             let imported: [PromptTemplate]
             do {
+                guard data.count <= TemplateStore.maxImportBytes else {
+                    throw TemplateStoreError.invalid("File is larger than \(TemplateStore.maxImportBytes / 1_048_576) MB.")
+                }
                 imported = try JSONDecoder().decode([PromptTemplate].self, from: data)
+                if let problem = TemplateValidation.problem(in: imported) {
+                    throw TemplateStoreError.invalid(problem)
+                }
             } catch {
                 let message = "Import failed: \(error.localizedDescription)"
                 await MainActor.run {
@@ -167,8 +205,13 @@ final class TemplateStore: ObservableObject {
 
     private func seedDefaultsIfNeeded() {
         guard let bundled = Bundle.main.url(forResource: "templates", withExtension: "json") else {
+            postError("Bundled default templates are missing from the app.")
             return
         }
-        try? fileManager.copyItem(at: bundled, to: templatesURL)
+        do {
+            try fileManager.copyItem(at: bundled, to: templatesURL)
+        } catch {
+            postError("Could not install default templates: \(error.localizedDescription)")
+        }
     }
 }

@@ -16,8 +16,16 @@ public sealed class FileTemplateStorage : ITemplateStorage
         }
     }
 
-    public Task<byte[]> ReadAsync(string path, CancellationToken cancellationToken) =>
-        File.ReadAllBytesAsync(path, cancellationToken);
+    // Templates are small hand-written JSON; refuse pathological files instead of loading them into memory.
+    public const long MaxTemplateFileBytes = 10 * 1024 * 1024;
+
+    public Task<byte[]> ReadAsync(string path, CancellationToken cancellationToken)
+    {
+        var length = new FileInfo(path).Length;
+        if (length > MaxTemplateFileBytes)
+            throw new IOException($"Template file is larger than {MaxTemplateFileBytes / (1024 * 1024)} MB.");
+        return File.ReadAllBytesAsync(path, cancellationToken);
+    }
 
     public async Task<IPreparedTemplateWrite> PrepareWriteAsync(string path, byte[] data, CancellationToken cancellationToken)
     {

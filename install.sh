@@ -52,7 +52,7 @@ xcodebuild -project "$PROJECT_DIR/HarmonyPrompts.xcodeproj" \
     -configuration Release \
     -derivedDataPath "$BUILD_DIR" \
     CONFIGURATION_BUILD_DIR="$BUILD_DIR/Release" \
-    > /dev/null
+    -quiet
 
 echo "Installing to /Applications/Harmony Prompts.app..."
 rm -rf "/Applications/Harmony Prompts.app"

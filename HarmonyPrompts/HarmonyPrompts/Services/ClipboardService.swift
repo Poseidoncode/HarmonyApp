@@ -14,8 +14,12 @@ enum ClipboardService {
     }
 
     static func copy(_ text: String) {
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(text, forType: .string)
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(text, forType: .string)
+        // Prompts can contain sensitive material: ask clipboard managers not
+        // to record it (nspasteboard.org convention, matches the Windows build).
+        pasteboard.setString("", forType: NSPasteboard.PasteboardType("org.nspasteboard.ConcealedType"))
     }
 
     /// Copies text, returns focus to the target app, then pastes.
@@ -36,13 +40,32 @@ enum ClipboardService {
         dismissHarmonyWindows()
         target.activate(options: [.activateAllWindows, .activateIgnoringOtherApps])
 
-        // Terminal and other apps need time to become key after Harmony's menu window closes.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.28) {
-            let pasted = postPaste(into: target)
-            if pasted {
+        // Terminal and other apps need time to become key after Harmony's menu
+        // window closes. Only paste once the target is verifiably frontmost;
+        // otherwise ⌘V could land in whatever app happens to be active.
+        awaitFrontmost(target, attemptsLeft: 20) { isFrontmost in
+            if isFrontmost, postCommandV() {
                 completion(.pasted(into: targetName))
             } else {
                 completion(.pasteFailed(into: targetName))
+            }
+        }
+    }
+
+    private static func awaitFrontmost(
+        _ target: NSRunningApplication,
+        attemptsLeft: Int,
+        completion: @escaping (Bool) -> Void
+    ) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            if target.isTerminated {
+                completion(false)
+            } else if NSWorkspace.shared.frontmostApplication?.processIdentifier == target.processIdentifier {
+                completion(true)
+            } else if attemptsLeft > 1 {
+                awaitFrontmost(target, attemptsLeft: attemptsLeft - 1, completion: completion)
+            } else {
+                completion(false)
             }
         }
     }
@@ -67,14 +90,6 @@ enum ClipboardService {
         NSApp.hide(nil)
     }
 
-    /// Try CGEvent first, then AppleScript (more reliable in Terminal.app).
-    private static func postPaste(into target: NSRunningApplication) -> Bool {
-        if postCommandV() {
-            return true
-        }
-        return postPasteViaAppleScript(target: target)
-    }
-
     private static func postCommandV() -> Bool {
         let source = CGEventSource(stateID: .hidSystemState)
         let keyDown = CGEvent(keyboardEventSource: source, virtualKey: 0x09, keyDown: true)
@@ -87,28 +102,5 @@ enum ClipboardService {
         keyDown.post(tap: .cgSessionEventTap)
         keyUp.post(tap: .cgSessionEventTap)
         return true
-    }
-
-    private static func postPasteViaAppleScript(target: NSRunningApplication) -> Bool {
-        let activateLine: String
-        if let bundleID = target.bundleIdentifier {
-            let sanitizedBundleID = bundleID.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
-            activateLine = "tell application id \"\(sanitizedBundleID)\" to activate"
-        } else if let name = target.localizedName {
-            let sanitizedName = name.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
-            activateLine = "tell application \"\(sanitizedName)\" to activate"
-        } else {
-            return false
-        }
-
-        let script = """
-        \(activateLine)
-        delay 0.15
-        tell application "System Events" to keystroke "v" using command down
-        """
-
-        var error: NSDictionary?
-        NSAppleScript(source: script)?.executeAndReturnError(&error)
-        return error == nil
     }
 }

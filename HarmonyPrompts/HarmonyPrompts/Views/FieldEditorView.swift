@@ -61,7 +61,7 @@ struct FieldEditorView: View {
 
             case .select:
                 Menu {
-                    ForEach(field.options ?? [], id: \.self) { option in
+                    ForEach(field.uniqueOptions, id: \.self) { option in
                         Button {
                             value = option
                         } label: {
@@ -96,7 +96,7 @@ struct FieldEditorView: View {
 
             case .radio:
                 FlowLayout(spacing: 6) {
-                    ForEach(field.options ?? [], id: \.self) { option in
+                    ForEach(field.uniqueOptions, id: \.self) { option in
                         let isSelected = value == option
                         Button {
                             value = option

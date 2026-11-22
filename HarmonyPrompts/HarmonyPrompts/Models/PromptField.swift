@@ -19,6 +19,12 @@ struct PromptField: Identifiable, Codable, Hashable {
     var checkedValue: String?
     var uncheckedValue: String?
 
+    /// Options with duplicates removed (order kept) so SwiftUI `ForEach(id: \.self)` stays well-defined.
+    var uniqueOptions: [String] {
+        var seen = Set<String>()
+        return (options ?? []).filter { seen.insert($0).inserted }
+    }
+
     func initialValue() -> String {
         switch type {
         case .checkbox:

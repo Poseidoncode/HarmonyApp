@@ -51,14 +51,16 @@ Harmony Prompts follows a **Zero Data Leakage / Local-First** design:
 ### 3. Accessibility & System Event Automation
 - **Purpose**: Accessibility permission is requested solely to detect the frontmost active application (e.g., Cursor, Xcode, Terminal, Browser) and simulate `⌘V` (paste) upon user triggering.
 - **Input Sanitization**:
-  - Simulated key events are dispatched via native `CGEvent`.
-  - Secondary automation scripts (AppleScript) utilize strict character escaping for process identifiers and names to prevent AppleScript injection attacks.
+  - Simulated key events are dispatched via native `CGEvent`. The ⌘V is only sent after the intended target app is confirmed to be the frontmost application; otherwise the paste is aborted and the prompt stays on the clipboard.
+  - No AppleScript or other script execution is used.
 - **No Keystroke Logging**: The app does not intercept, log, or record global user keystrokes. Mouse click monitoring is only used to refresh the active frontmost window reference.
 
 ### 4. File Storage & Configuration Integrity
-- **Sandboxed Storage**: Custom prompt templates are stored in `~/Library/Application Support/HarmonyPrompts/templates.json`.
+- **Local Storage**: The app is not App-Sandboxed (Hardened Runtime only). Custom prompt templates are stored in `~/Library/Application Support/HarmonyPrompts/templates.json`.
 - **Atomic Operations**: All save actions use atomic file writing (`.atomic`) to prevent data corruption during unexpected shutdowns.
-- **Strict Parsing**: Imported template files are strictly validated against strongly-typed Swift models (`Decodable`). Untrusted keys or arbitrary executable scripts in JSON files are discarded.
+- **Strict Parsing**: Imported template files are strictly validated against strongly-typed Swift models (`Decodable`), limited to 10 MB, and rejected if template IDs or field names within a template are duplicated. Unknown keys are discarded.
+- **Backup on Write**: The previous `templates.json` is kept as `templates.json.bak` before every save, so an import can never destroy the only copy of hand-edited data.
+- **Clipboard Hygiene**: Copied prompts are marked with `org.nspasteboard.ConcealedType` so cooperating clipboard managers do not record them.
 
 ---
 

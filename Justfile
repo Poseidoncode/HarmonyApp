@@ -20,7 +20,7 @@ build:
 
 # Build, install to /Applications, and launch
 install: build
-    pkill -f "Harmony Prompts" 2>/dev/null || true
+    pkill -x "Harmony Prompts" 2>/dev/null || true
     rm -rf "/Applications/Harmony Prompts.app"
     cp -R {{app_dir}}/build/Build/Products/Release/Harmony\ Prompts.app "/Applications/"
     /System/Library/Frameworks/CoreServices.framework/Versions/Current/Frameworks/LaunchServices.framework/Versions/Current/Support/lsregister -f -R -trusted "/Applications/Harmony Prompts.app"

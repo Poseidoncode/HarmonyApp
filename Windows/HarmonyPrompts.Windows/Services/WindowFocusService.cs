@@ -11,6 +11,9 @@ namespace HarmonyPrompts.Windows.Services;
 public sealed class WindowFocusService : IDisposable
 {
     private readonly uint _ourPid = (uint)Environment.ProcessId;
+    // Resolved once: Capture runs on every foreground change and used to allocate a Process each time.
+    private readonly int _ourSessionId = Process.GetCurrentProcess().SessionId;
+    private const int MaxTrackedWindows = 256;
     private readonly Win32.WinEventProc _callback;
     private readonly Dictionary<nint, long> _windowGenerations = new();
     private long _nextGeneration;
@@ -120,15 +123,24 @@ public sealed class WindowFocusService : IDisposable
         try
         {
             using var process = Process.GetProcessById(checked((int)pid));
-            using var ours = Process.GetCurrentProcess();
-            if (process.HasExited || process.SessionId != ours.SessionId ||
+            if (process.HasExited || process.SessionId != _ourSessionId ||
                 process.ProcessName.Equals("explorer", StringComparison.OrdinalIgnoreCase)) return null;
             if (!_windowGenerations.TryGetValue(hwnd, out var generation))
+            {
+                if (_windowGenerations.Count >= MaxTrackedWindows) PruneDeadWindows();
                 _windowGenerations[hwnd] = generation = ++_nextGeneration;
+            }
             return new(hwnd, pid, process.StartTime.ToUniversalTime().Ticks, process.ProcessName, generation);
         }
         catch (Exception error) when (error is ArgumentException or InvalidOperationException or Win32Exception or OverflowException)
         { return null; }
+    }
+
+    // Destroy events can be missed (hook gaps, elevated windows); drop entries for windows that no longer exist.
+    private void PruneDeadWindows()
+    {
+        foreach (var handle in new List<nint>(_windowGenerations.Keys))
+            if (!Win32.IsWindow(handle)) _windowGenerations.Remove(handle);
     }
 
     public bool IsValid(PasteTarget target)

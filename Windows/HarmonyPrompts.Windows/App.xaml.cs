@@ -27,6 +27,13 @@ public partial class App : System.Windows.Application, IUserInteraction
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        // Tray app: an unexpected exception (e.g. from an async command) should
+        // be reported, not silently kill a long-running background process.
+        DispatcherUnhandledException += (_, args) =>
+        {
+            args.Handled = true;
+            _tray?.Notify("An unexpected error occurred. Your templates were not modified; reopen Harmony if something looks wrong.", true);
+        };
         _instanceMutex = new Mutex(true, @"Local\HarmonyPrompts.Windows.Desktop", out var firstInstance);
         if (!firstInstance)
         {
